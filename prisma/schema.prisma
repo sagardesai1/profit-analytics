@@ -1,0 +1,123 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL") // Neon database connection string
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id           String                @id @default(cuid()) // Update to String
+    email        String                @unique
+    createdAt    DateTime              @default(now())
+    products     Product[] // One-to-many relation with products
+    tiktokOrders TiktokOrder[] // One-to-many relation with TikTok orders
+    productSales ProductSalesSummary[] // One-to-many relation with product sales summary
+}
+
+model TiktokOrder {
+    id                                  Int     @id @default(autoincrement())
+    statementDateUtc                    String?
+    statementId                         String?
+    paymentId                           String?
+    status                              String?
+    currency                            String?
+    type                                String?
+    orderAdjustmentId                   String?
+    skuId                               String?
+    quantity                            Int?
+    productName                         String?
+    skuName                             String?
+    orderCreatedDate                    String?
+    orderDeliveryDate                   String?
+    totalSettlementAmount               Float?
+    netSales                            Float?
+    grossSales                          Float?
+    grossSalesRefund                    Float?
+    sellerDiscount                      Float?
+    sellerDiscountRefund                Float?
+    shipping                            Float?
+    tiktokShippingFee                   Float?
+    fbtShippingFee                      Float?
+    fbtFulfillmentFee                   Float?
+    customerShippingFeeOffset           Float?
+    limitedTimeSignupShippingIncentive  Float?
+    signatureConfirmationFee            Float?
+    shippingInsuranceFee                Float?
+    customerPaidShippingFee             Float?
+    customerPaidShippingFeeRefund       Float?
+    tiktokShippingIncentive             Float?
+    tiktokShippingIncentiveRefund       Float?
+    shippingFeeSubsidy                  Float?
+    returnShippingFee                   Float?
+    fees                                Float?
+    transactionFee                      Float?
+    referralFee                         Float?
+    refundAdminFee                      Float?
+    affiliateCommission                 Float?
+    affiliatePartnerCommission          Float?
+    adjustmentAmount                    Float?
+    adjustmentReason                    String?
+    relatedOrderId                      String?
+    customerPayment                     Float?
+    customerRefund                      Float?
+    sellerVoucherDiscount               Float?
+    sellerVoucherDiscountRefund         Float?
+    platformDiscount                    Float?
+    platformDiscountRefund              Float?
+    platformVoucherDiscount             Float?
+    platformVoucherDiscountRefund       Float?
+    adsReferralFeeDiscount              Float?
+    salesTaxPayment                     Float?
+    salesTaxRefund                      Float?
+    retailDeliveryFeePayment            Float?
+    retailDeliveryFeeRefund             Float?
+    customerPaidShippingBeforeDiscount  Float?
+    sellerShippingDiscount              Float?
+    tiktokShippingDiscount              Float?
+    estimatedPackageWeight              Float?
+    chargeablePackageWeight             Float?
+    fbtChargeableGoodsWeight            Float?
+    collectionMethod                    String?
+    deliveryOption                      String?
+    signatureConfirmationServiceFeeType String?
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id]) // Relation to User
+}
+
+model Product {
+    id          Int      @id @default(autoincrement())
+    skuId       String   @unique
+    productName String
+    skuName     String?
+    createdAt   DateTime @default(now())
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id]) // Relation to User
+
+    salesSummaries ProductSalesSummary[] // One-to-many relation with product sales summaries
+}
+
+model ProductSalesSummary {
+    id              Int      @id @default(autoincrement())
+    unitsSold       Int?
+    refunds         Int?
+    grossSales      Float?
+    netSales        Float?
+    adsCost         Float?
+    grossProfit     Float?
+    netProfit       Float?
+    margin          Float?
+    roi             Float?
+    sellableReturns Float?
+    lastUpdated     DateTime @default(now())
+
+    productId Int
+    userId    String
+    product   Product @relation(fields: [productId], references: [id])
+    user      User    @relation(fields: [userId], references: [id])
+
+    @@unique([productId, userId])
+}
