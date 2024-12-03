@@ -26,10 +26,12 @@ export async function generateMetadata({
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const posts = await getAllPosts();
-  const categoryPosts = posts.filter(
-    (post) =>
-      post.category.toLowerCase() ===
-      params.category.replace(/-/g, " ").toLowerCase()
+  const categoryPosts = posts.filter((post) =>
+    post.categories.some(
+      (cat) =>
+        cat.title.toLowerCase() ===
+        params.category.replace(/-/g, " ").toLowerCase()
+    )
   );
 
   return (
@@ -39,7 +41,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {categoryPosts.map((post) => (
-          <BlogCard key={post.slug} post={post} />
+          <BlogCard key={post.slug.toString()} post={post} />
         ))}
       </div>
     </div>
