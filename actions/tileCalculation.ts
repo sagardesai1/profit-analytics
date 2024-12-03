@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 
-export async function calculateTitle(
+export async function calculateTile(
   startDate: Date,
   endDate: Date,
   userId: string
@@ -14,7 +14,7 @@ export async function calculateTitle(
         gte: startDate,
         lte: endDate,
       },
-      userId,
+      // userId,
     },
     select: {
       unitsSold: true,

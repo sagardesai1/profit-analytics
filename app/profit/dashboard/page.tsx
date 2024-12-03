@@ -2,11 +2,11 @@
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { SignOutButton, useAuth } from "@clerk/nextjs";
 import { getDashboardProducts } from "@/actions/getDashboardProducts";
 import { updateDailyProductPnL } from "@/utils/updateDailyProductPnL";
 import Tile from "@/components/tile";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronRightIcon, ChevronUpIcon } from "lucide-react";
 
 interface Product {
   id: number;
@@ -69,15 +69,23 @@ export default function DashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [startDate, setStartDate] = useState<Date>(
-    new Date("2024-10-01T00:00:00")
+    new Date("2024-03-01T00:00:00")
   );
-  const [endDate, setEndDate] = useState<Date>(new Date("2024-10-31T23:59:59"));
+  const [endDate, setEndDate] = useState<Date>(new Date("2024-04-30T23:59:59"));
   const [showSalesBreakdown, setShowSalesBreakdown] = useState(false);
   const [showMarketingCosts, setShowMarketingCosts] = useState(false);
   const [showRefundCosts, setShowRefundCosts] = useState(false);
   const [showTiktokFees, setShowTiktokFees] = useState(false);
   const [showShippingCost, setShowShippingCost] = useState(false);
   const [showAdjustmentFees, setShowAdjustmentFees] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Product | null;
+    direction: "asc" | "desc" | null;
+  }>({
+    key: null,
+    direction: null,
+  });
+
   // Use useEffect to fetch products on the client side
   useEffect(() => {
     if (userId) {
@@ -113,6 +121,34 @@ export default function DashboardPage() {
     return new Intl.NumberFormat("en-US").format(number);
   };
 
+  const sortProducts = (products: Product[]) => {
+    if (!sortConfig.key || !sortConfig.direction) return products;
+
+    return [...products].sort((a, b) => {
+      if (a[sortConfig.key!] < b[sortConfig.key!]) {
+        return sortConfig.direction === "asc" ? -1 : 1;
+      }
+      if (a[sortConfig.key!] > b[sortConfig.key!]) {
+        return sortConfig.direction === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
+  const requestSort = (key: keyof Product) => {
+    let direction: "asc" | "desc" | null = "asc";
+
+    if (sortConfig.key === key) {
+      if (sortConfig.direction === "asc") {
+        direction = "desc";
+      } else if (sortConfig.direction === "desc") {
+        direction = null;
+      }
+    }
+
+    setSortConfig({ key, direction });
+  };
+
   const DropdownSection = ({
     title,
     total,
@@ -129,18 +165,36 @@ export default function DashboardPage() {
     <div className="mb-2">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center text-left w-full"
+        className="flex items-center justify-between w-full"
       >
-        <span className="mr-2">
-          {title}: ${formatNumber(total)}
-        </span>
-        {isOpen ? (
-          <ChevronUpIcon className="h-5 w-5" />
-        ) : (
-          <ChevronDownIcon className="h-5 w-5" />
-        )}
+        <div className="flex items-center">
+          {isOpen ? (
+            <ChevronUpIcon className="h-5 w-5 mr-2" />
+          ) : (
+            <ChevronRightIcon className="h-5 w-5 mr-2" />
+          )}
+          <span>{title}</span>
+        </div>
+        <span className="text-right min-w-[100px]">${formatNumber(total)}</span>
       </button>
-      {isOpen && <div className="ml-4 mt-2">{children}</div>}
+      {isOpen && (
+        <div className="ml-10 mt-2 space-y-1">
+          {React.Children.map(children, (child) => {
+            if (React.isValidElement(child)) {
+              const content = child.props.children;
+              const label = content[0].replace(": $", "");
+              const value = content[1];
+              return (
+                <div className="flex justify-between">
+                  <span>{label}</span>
+                  <span className="text-right min-w-[100px]">${value}</span>
+                </div>
+              );
+            }
+            return child;
+          })}
+        </div>
+      )}
     </div>
   );
 
@@ -148,52 +202,54 @@ export default function DashboardPage() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+        <div className="flex items-center gap-x-8">
+          {/* <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
           >
-            <path
-              fillRule="evenodd"
-              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-              clipRule="evenodd"
-            />
-          </svg>
-          {isRefreshing ? "Refreshing..." : "Refresh All"}
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {isRefreshing ? "Refreshing..." : "Refresh All"}
+          </button> */}
+          <SignOutButton>
+            <div className="text-sm/6 font-semibold text-gray-900">
+              Log out <span aria-hidden="true">&rarr;</span>
+            </div>
+          </SignOutButton>
+        </div>
       </div>
       {/* New Tiles Section */}
       <div className="flex justify-between mb-6">
         <Tile
-          label="Oct 6th, 2024"
-          startDate={new Date("2024-10-06T00:00:00")}
-          endDate={new Date("2024-10-06T23:59:59")}
+          label="Apr 24th, 2024"
+          startDate={new Date("2024-04-24T00:00:00")}
+          endDate={new Date("2024-04-24T23:59:59")}
         />
         <Tile
-          label="Oct 5th, 2024"
-          startDate={new Date("2024-10-05T00:00:00")}
-          endDate={new Date("2024-10-05T23:59:59")}
+          label="Apr 22th, 2024"
+          startDate={new Date("2024-04-22T00:00:00")}
+          endDate={new Date("2024-04-22T23:59:59")}
         />
         <Tile
           label="This Month"
-          startDate={new Date("2024-10-01T00:00:00")}
-          endDate={new Date("2024-10-31T23:59:59")}
+          startDate={new Date("2024-04-01T00:00:00")}
+          endDate={new Date("2024-04-31T23:59:59")}
         />
         <Tile
           label="Last Month"
-          startDate={new Date("2024-09-01T00:00:00")}
-          endDate={new Date("2024-09-30T23:59:59")}
-        />
-        <Tile
-          label="This Year"
-          startDate={new Date("2024-01-01T00:00:00")}
-          endDate={new Date("2024-12-31T23:59:59")}
+          startDate={new Date("2024-03-01T00:00:00")}
+          endDate={new Date("2024-03-31T23:59:59")}
         />
       </div>
       {/* End of Tiles Section */}
@@ -223,20 +279,128 @@ export default function DashboardPage() {
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
-              <th className="py-3 px-4 border-b">Product Name</th>
-              <th className="py-3 px-4 border-b">Units Sold</th>
-              <th className="py-3 px-4 border-b">Refunds</th>
-              <th className="py-3 px-4 border-b">Sales</th>
-              <th className="py-3 px-4 border-b">Ads</th>
-              <th className="py-3 px-4 border-b">Gross Profit</th>
-              <th className="py-3 px-4 border-b">Net Profit</th>
-              <th className="py-3 px-4 border-b">Margin</th>
-              <th className="py-3 px-4 border-b">ROI</th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("productName")}
+                  className="font-bold hover:text-blue-600 flex items-center"
+                >
+                  Product Name
+                  {sortConfig.key === "productName" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("unitsSold")}
+                  className="font-bold hover:text-blue-600 flex items-center justify-center mx-auto"
+                >
+                  Units Sold
+                  {sortConfig.key === "unitsSold" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("refunds")}
+                  className="font-bold hover:text-blue-600 flex items-center justify-center mx-auto"
+                >
+                  Refunds
+                  {sortConfig.key === "refunds" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("sales")}
+                  className="font-bold hover:text-blue-600 flex items-center justify-center mx-auto"
+                >
+                  Sales
+                  {sortConfig.key === "sales" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("marketingCosts")}
+                  className="font-bold hover:text-blue-600 flex items-center justify-center mx-auto"
+                >
+                  Ads
+                  {sortConfig.key === "marketingCosts" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("grossProfit")}
+                  className="font-bold hover:text-blue-600 flex items-center justify-center mx-auto"
+                >
+                  Gross Profit
+                  {sortConfig.key === "grossProfit" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("netProfit")}
+                  className="font-bold hover:text-blue-600 flex items-center justify-center mx-auto"
+                >
+                  Net Profit
+                  {sortConfig.key === "netProfit" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("margin")}
+                  className="font-bold hover:text-blue-600 flex items-center justify-center mx-auto"
+                >
+                  Margin
+                  {sortConfig.key === "margin" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
+              <th className="py-3 px-4 border-b">
+                <button
+                  onClick={() => requestSort("roi")}
+                  className="font-bold hover:text-blue-600 flex items-center justify-center mx-auto"
+                >
+                  ROI
+                  {sortConfig.key === "roi" && (
+                    <span className="ml-1">
+                      {sortConfig.direction === "asc" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </button>
+              </th>
               <th className="py-3 px-4 border-b">Info</th>
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {sortProducts(products).map((product) => (
               <tr key={product.id}>
                 <td className="py-3 px-4 border-b">{product.productName}</td>
                 <td className="py-3 px-4 border-b text-center">
@@ -281,12 +445,20 @@ export default function DashboardPage() {
           <h2 className="text-xl font-bold mb-4">
             {selectedProduct.productName}
           </h2>
-          <p className="mb-2">
-            Units: {formatNumber(selectedProduct.unitsSold)}
-          </p>
-          <p className="mb-2">
-            Refunds: {formatNumber(selectedProduct.refunds)}
-          </p>
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Units</span>
+            <span className="text-right min-w-[100px]">
+              {formatNumber(selectedProduct.unitsSold)}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Refunds</span>
+            <span className="text-right min-w-[100px]">
+              {formatNumber(selectedProduct.refunds)}
+            </span>
+          </div>
+
           <DropdownSection
             title="Sales"
             total={parseFloat(selectedProduct.sales?.toFixed(2))}
@@ -307,9 +479,12 @@ export default function DashboardPage() {
             </p>
           </DropdownSection>
 
-          <p className="mb-2">
-            Promo Cost: $
-            {formatNumber(parseFloat(selectedProduct.promoCosts?.toFixed(2)))}
+          <p className="flex justify-between mb-2">
+            <span className="ml-7">Promo Cost</span>
+            <span className="text-right min-w-[100px]">
+              $
+              {formatNumber(parseFloat(selectedProduct.promoCosts?.toFixed(2)))}
+            </span>
           </p>
 
           <DropdownSection
@@ -455,46 +630,80 @@ export default function DashboardPage() {
               {formatNumber(selectedProduct.fbtWarehouseServiceFee)}
             </p>
           </DropdownSection>
-          <p className="mb-2">
-            COGS: ${formatNumber(parseFloat(selectedProduct.cogs?.toFixed(2)))}
-          </p>
-          <p className="mb-2">
-            Gross Profit: $
-            {formatNumber(parseFloat(selectedProduct.grossProfit?.toFixed(2)))}
-          </p>
-          <p className="mb-2">
-            Expenses: $
-            {formatNumber(parseFloat(selectedProduct.expenses?.toFixed(2)))}
-          </p>
-          <p className="mb-2">
-            Net Profit: $
-            {formatNumber(parseFloat(selectedProduct.netProfit?.toFixed(2)))}
-          </p>
-          <p className="mb-2">
-            Estimated Payout: $
-            {formatNumber(
-              parseFloat(selectedProduct.estimatedPayout?.toFixed(2))
-            )}
-          </p>
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">COGS</span>
+            <span className="text-right min-w-[100px]">
+              ${formatNumber(parseFloat(selectedProduct.cogs?.toFixed(2)))}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Gross Profit</span>
+            <span className="text-right min-w-[100px]">
+              $
+              {formatNumber(
+                parseFloat(selectedProduct.grossProfit?.toFixed(2))
+              )}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Expenses</span>
+            <span className="text-right min-w-[100px]">
+              ${formatNumber(parseFloat(selectedProduct.expenses?.toFixed(2)))}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Net Profit</span>
+            <span className="text-right min-w-[100px]">
+              ${formatNumber(parseFloat(selectedProduct.netProfit?.toFixed(2)))}
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Estimated Payout</span>
+            <span className="text-right min-w-[100px]">
+              $
+              {formatNumber(
+                parseFloat(selectedProduct.estimatedPayout?.toFixed(2))
+              )}
+            </span>
+          </div>
+
           <hr className="my-4 border-t border-gray-300" />
-          <p className="mb-2">
-            Margin:{" "}
-            {formatNumber(parseFloat(selectedProduct.margin?.toFixed(2)))}%
-          </p>
-          <p className="mb-2">
-            Real ACOS:{" "}
-            {formatNumber(parseFloat(selectedProduct.realAcos?.toFixed(2)))}%
-          </p>
-          <p className="mb-2">
-            Refunds:{" "}
-            {formatNumber(
-              parseFloat(selectedProduct.percentRefunds?.toFixed(2))
-            )}
-            %
-          </p>
-          <p className="mb-2">
-            ROI: {formatNumber(parseFloat(selectedProduct.roi?.toFixed(2)))}%
-          </p>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Margin</span>
+            <span className="text-right min-w-[100px]">
+              {formatNumber(parseFloat(selectedProduct.margin?.toFixed(2)))}%
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Real ACOS</span>
+            <span className="text-right min-w-[100px]">
+              {formatNumber(parseFloat(selectedProduct.realAcos?.toFixed(2)))}%
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">Refunds</span>
+            <span className="text-right min-w-[100px]">
+              {formatNumber(
+                parseFloat(selectedProduct.percentRefunds?.toFixed(2))
+              )}
+              %
+            </span>
+          </div>
+
+          <div className="flex justify-between mb-2">
+            <span className="ml-7">ROI</span>
+            <span className="text-right min-w-[100px]">
+              {formatNumber(parseFloat(selectedProduct.roi?.toFixed(2)))}%
+            </span>
+          </div>
+
           <button
             onClick={closeDialog}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

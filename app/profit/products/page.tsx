@@ -4,12 +4,12 @@ import { getProducts } from "@/actions/getProducts";
 import { useAuth } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
 import CosEditPopup from "@/components/CosEditPopup";
-// import { updateProductCogs } from "@/actions/updateProductCogs";
+import { updateProductCogs } from "@/actions/updateProductCogs";
 
 interface Product {
   id: number;
-  product_name: string;
-  cogs: number;
+  productName: string;
+  price: number;
 }
 
 export default function ProductsPage() {
@@ -18,18 +18,25 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [editingField, setEditingField] = useState<"cogs" | null>(null);
+  const [editingField, setEditingField] = useState<"price" | null>(null);
 
   // Use useEffect to fetch products on the client side
   useEffect(() => {
     if (userId) {
-      getProducts(userId).then(setProducts);
+      getProducts(userId).then((data) => {
+        const formattedProducts = data.map((p) => ({
+          id: p.id,
+          productName: p.product_name,
+          price: p.cogs,
+        }));
+        setProducts(formattedProducts);
+      });
     }
   }, [userId]);
 
-  const handleCosChange = (product: Product) => {
+  const handlePriceChange = (product: Product) => {
     setEditingProduct(product);
-    setEditingField("cogs");
+    setEditingField("price");
     setIsPopupOpen(true);
   };
 
@@ -39,30 +46,21 @@ export default function ProductsPage() {
     setEditingField(null);
   };
 
-  const handleCosUpdate = async (
-    newCos: number | { [key: string]: number }
-  ) => {
+  const handleCosUpdate = async (newPrice: number) => {
     if (editingProduct) {
       const updatedProducts = products.map((p) =>
-        p.id === editingProduct.id ? { ...p, cos: newCos } : p
+        p.id === editingProduct.id ? { ...p, price: newPrice } : p
       );
-      setProducts(
-        updatedProducts.map((p) => ({
-          ...p,
-          cos: typeof p.cogs === "object" ? 0 : p.cogs, // or some default value
-        }))
-      );
+      setProducts(updatedProducts);
 
       // Update the database
       try {
-        // const result = await updateProductCos(editingProduct.id, newCos);
-        // if (!result.success) {
-        //   console.error("Failed to update COS in database:", result.error);
-        //   // Optionally, you can show an error message to the user here
-        // }
+        const result = await updateProductCogs(editingProduct.id, newPrice);
+        if (!result.success) {
+          console.error("Failed to update COGS in database:", result.error);
+        }
       } catch (error) {
-        console.error("Error updating COS in database:", error);
-        // Optionally, you can show an error message to the user here
+        console.error("Error updating COGS in database:", error);
       }
     }
     handlePopupClose();
@@ -82,13 +80,13 @@ export default function ProductsPage() {
           <tbody>
             {products.map((product) => (
               <tr key={product.id}>
-                <td className="py-3 px-4 border-b">{product.product_name}</td>
+                <td className="py-3 px-4 border-b">{product.productName}</td>
                 <td className="py-3 px-4 border-b text-center">
                   <button
-                    onClick={() => handleCosChange(product)}
+                    onClick={() => handlePriceChange(product)}
                     className="w-full text-center hover:bg-gray-100 py-1 px-2 rounded"
                   >
-                    ${product.cogs.toFixed(2)}
+                    ${product.price.toFixed(2)}
                   </button>
                 </td>
               </tr>
@@ -98,13 +96,15 @@ export default function ProductsPage() {
       </div>
 
       {isPopupOpen && editingProduct && (
-        <>
-          <CosEditPopup
-            product={editingProduct}
-            onClose={handlePopupClose}
-            onUpdate={handleCosUpdate}
-          />
-        </>
+        <CosEditPopup
+          product={{
+            id: editingProduct.id,
+            product_name: editingProduct.productName,
+            cogs: editingProduct.price,
+          }}
+          onClose={handlePopupClose}
+          onUpdate={handleCosUpdate}
+        />
       )}
     </div>
   );

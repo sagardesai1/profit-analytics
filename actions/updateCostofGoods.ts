@@ -18,8 +18,6 @@ export async function updateCostOfGoods(userId: string) {
           data: {
             productId: product.id,
             price: 0, // Default price, you may want to adjust this
-            startDate: new Date(0), // Start from the earliest possible date
-            endDate: null, // No end date for the initial entry
           },
         });
       }

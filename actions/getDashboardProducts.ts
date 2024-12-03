@@ -8,9 +8,9 @@ export async function getDashboardProducts(
 ) {
   try {
     const products = await prisma.product.findMany({
-      where: {
-        userId: userId,
-      },
+      // where: {
+      //   userId: userId,
+      // },
       include: {
         pnlSummaries: {
           where: {

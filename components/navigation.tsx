@@ -4,14 +4,14 @@ import Link from "next/link";
 
 export default function Navigation() {
   return (
-    <nav className="w-64 bg-gray-100 h-screen">
+    <nav className="w-48 bg-gray-100 h-screen">
       <ul className="p-4">
         <li className="mb-2">
           <span className="block p-2 rounded">Profit</span>
           <ul className="ml-4 mt-2">
             <li>
               <Link
-                href="/dashboard"
+                href="/profit/dashboard"
                 className="block p-2 hover:bg-gray-200 rounded"
               >
                 Dashboard
@@ -19,7 +19,7 @@ export default function Navigation() {
             </li>
             <li>
               <Link
-                href="/products"
+                href="/profit/products"
                 className="block p-2 hover:bg-gray-200 rounded"
               >
                 Products
@@ -27,22 +27,22 @@ export default function Navigation() {
             </li>
             <li>
               <Link
-                href="/cashflow"
+                href="/profit/expenses"
                 className="block p-2 hover:bg-gray-200 rounded"
               >
-                Cashflow
+                Expenses
               </Link>
             </li>
           </ul>
         </li>
-        <li className="mb-2">
+        {/* <li className="mb-2">
           <Link
             href="/inventory"
             className="block p-2 hover:bg-gray-200 rounded"
           >
             Inventory
           </Link>
-        </li>
+        </li> */}
       </ul>
     </nav>
   );

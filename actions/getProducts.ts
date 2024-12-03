@@ -4,9 +4,9 @@ import prisma from "@/lib/prisma";
 export async function getProducts(userId: string) {
   try {
     const products = await prisma.product.findMany({
-      where: {
-        userId: userId,
-      },
+      // where: {
+      //   userId: userId,
+      // },
       include: {
         costOfGoods: {
           orderBy: {

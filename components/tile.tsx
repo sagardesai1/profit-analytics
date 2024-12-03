@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { calculateTitle } from "@/actions/titleCalculation";
+import { calculateTile } from "@/actions/tileCalculation";
 import { useAuth } from "@clerk/nextjs";
 
 // Define the interface for the stats object
@@ -64,21 +64,54 @@ interface TileProps {
 
 function Tile({ label, startDate, endDate }: TileProps) {
   const [todayStats, setTodayStats] = useState<Stats | null>(null);
-  const { userId } = useAuth();
-  if (!userId) {
-    return null;
-  }
+  const [isLoading, setIsLoading] = useState(true);
+  const { userId, isLoaded, isSignedIn } = useAuth();
+
   useEffect(() => {
     const fetchData = async () => {
-      const stats = await calculateTitle(startDate, endDate, userId);
-      setTodayStats(stats);
+      try {
+        if (!isLoaded || !isSignedIn || !userId) {
+          setIsLoading(false);
+          return;
+        }
+
+        const stats = await calculateTile(startDate, endDate, userId);
+        setTodayStats(stats);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
-  }, [startDate, endDate, userId]);
+  }, [startDate, endDate, userId, isLoaded, isSignedIn]);
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="bg-gray-200 p-4 rounded shadow w-1/4 mx-2">
+        Loading...
+      </div>
+    );
+  }
+
+  // Show sign-in message if not authenticated
+  if (!isSignedIn) {
+    return (
+      <div className="bg-gray-200 p-4 rounded shadow w-1/4 mx-2">
+        Please sign in to view statistics
+      </div>
+    );
+  }
+
+  // Show error state if no data
   if (!todayStats) {
-    return <div>Loading...</div>;
+    return (
+      <div className="bg-gray-200 p-4 rounded shadow w-1/4 mx-2">
+        No data available
+      </div>
+    );
   }
 
   const formatNumber = (number: number) => {
@@ -91,23 +124,74 @@ function Tile({ label, startDate, endDate }: TileProps) {
       <h4 className="text-sm text-gray-600">
         {startDate.toLocaleDateString()} - {endDate.toLocaleDateString()}
       </h4>
-      <p>Units: {formatNumber(todayStats.totalUnitsSold)}</p>
-      <p>Refunds: {formatNumber(todayStats.totalRefunds)}</p>
-      <p>Sales: ${formatNumber(todayStats.totalSales)}</p>
-      <p>Promo Cost: ${formatNumber(todayStats.totalPromoCosts)}</p>
-      <p>Marketing Costs: ${formatNumber(todayStats.totalMarketingCosts)}</p>
-      <p>Refunds Cost: ${formatNumber(todayStats.totalRefundCosts)}</p>
-      <p>TikTok Fees: ${formatNumber(todayStats.totalTiktokFees)}</p>
-      <p>Shipping Cost: ${formatNumber(todayStats.totalShippingFees)}</p>
-      <p>Adjustment Fees: ${formatNumber(todayStats.totalAdjustmentFees)}</p>
-      <p>Gross Profit: ${formatNumber(todayStats.totalGrossProfit)}</p>
-      <p>Expenses: ${formatNumber(todayStats.totalExpenses)}</p>
-      <p>Net Profit: ${formatNumber(todayStats.totalNetProfit)}</p>
-      <p>Estimated Payout: ${formatNumber(todayStats.totalEstimatedPayout)}</p>
-      <p>Margin: {formatNumber(todayStats.margin)}%</p>
-      <p>Real ACOS: {formatNumber(todayStats.realAcos)}%</p>
-      <p>ROI: {formatNumber(todayStats.roi)}%</p>
-      <p>Percent Refunds: {formatNumber(todayStats.percentRefunds)}%</p>
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-between">
+          <span>Units:</span>{" "}
+          <span>{formatNumber(todayStats.totalUnitsSold)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Refunds:</span>{" "}
+          <span>{formatNumber(todayStats.totalRefunds)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Sales:</span>{" "}
+          <span>${formatNumber(todayStats.totalSales)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Promo Cost:</span>{" "}
+          <span>${formatNumber(todayStats.totalPromoCosts)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Marketing Costs:</span>{" "}
+          <span>${formatNumber(todayStats.totalMarketingCosts)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Refunds Cost:</span>{" "}
+          <span>${formatNumber(todayStats.totalRefundCosts)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>TikTok Fees:</span>{" "}
+          <span>${formatNumber(todayStats.totalTiktokFees)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Shipping Cost:</span>{" "}
+          <span>${formatNumber(todayStats.totalShippingFees)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Adjustment Fees:</span>{" "}
+          <span>${formatNumber(todayStats.totalAdjustmentFees)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Gross Profit:</span>{" "}
+          <span>${formatNumber(todayStats.totalGrossProfit)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Expenses:</span>{" "}
+          <span>${formatNumber(todayStats.totalExpenses)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Net Profit:</span>{" "}
+          <span>${formatNumber(todayStats.totalNetProfit)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Estimated Payout:</span>{" "}
+          <span>${formatNumber(todayStats.totalEstimatedPayout)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Margin:</span> <span>{formatNumber(todayStats.margin)}%</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Real ACOS:</span>{" "}
+          <span>{formatNumber(todayStats.realAcos)}%</span>
+        </div>
+        <div className="flex justify-between">
+          <span>ROI:</span> <span>{formatNumber(todayStats.roi)}%</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Percent Refunds:</span>{" "}
+          <span>{formatNumber(todayStats.percentRefunds)}%</span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -216,7 +216,7 @@ export async function updateDailyProductPnL(userId: string): Promise<void> {
           tiktokFees +
           shippingFees +
           adjustmentsFees +
-          -1 * cogsPrice;
+          -1 * (cogsPrice * (unitsSold || 0));
         console.log("grossProfit", grossProfit);
 
         // Net Profit
@@ -430,14 +430,27 @@ export async function updateDailyProductPnL(userId: string): Promise<void> {
             referralFee: referralFee,
             shippingFees: shippingFees,
             tiktokShopShippingFee: tiktokShopShippingFee,
-            fulfilledByTiktokShopShippingFee: fbtFulfillmentFee,
+            fulfilledByTiktokShopShippingFee: fulfilledByTiktokShopShippingFee,
             shippingInsuranceFee: shippingInsuranceFee,
+            customerPaidShippingFee: customerPaidShippingFee,
+            tiktokShippingIncentive: tiktokShippingIncentive,
+            shippingFeeSubsidy: shippingFeeSubsidy,
             returnShippingFee: returnShippingFee,
             fbtFulfillmentFee: fbtFulfillmentFee,
             customerShippingFeeOffset: customerShippingFeeOffset,
             limitedTimeSignupShippingIncentive:
               limitedTimeSignupShippingIncentive,
             adjustmentFees: adjustmentsFees,
+            logisticsAdjustment: logisticsAdjustment,
+            logisticsReimbursement: logisticsReimbursement,
+            logisticsDeduction: logisticsDeduction,
+            tiktokShopReimbursement: tiktokShopReimbursement,
+            policyViolationDeduction: policyViolationDeduction,
+            tiktokFeesAdjustment: tiktokFeesAdjustment,
+            adjustmentFromSettlementAccount: adjustmentFromSettlementAccount,
+            chargeback: chargeback,
+            otherAdjustment: otherAdjustment,
+            fbtWarehouseServiceFee: fbtWarehouseServiceFee,
             cogs: cogsPrice,
             grossProfit: grossProfit,
             expenses: totalExpenses,

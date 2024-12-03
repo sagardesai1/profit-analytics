@@ -63,14 +63,12 @@ model TiktokOrder {
 }
 
 model Product {
-    id              Int      @id @default(autoincrement())
-    skuId           String   @unique
-    productName     String
-    createdAt       DateTime @default(now())
-    fbmShippingCost Float?
-    profitPerUnit   Float?
-    userId          String
-    user            User     @relation(fields: [userId], references: [id])
+    id          Int      @id @default(autoincrement())
+    skuId       String   @unique
+    productName String
+    createdAt   DateTime @default(now())
+    userId      String
+    user        User     @relation(fields: [userId], references: [id])
 
     pnlSummaries DailyProductPnL[]
     costOfGoods  CostOfGoods[]
