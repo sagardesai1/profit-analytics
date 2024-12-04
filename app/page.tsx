@@ -17,33 +17,46 @@ import Script from "next/script";
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "SkuHunt - TikTok Shop Analytics Platform",
+  name: "SKUHunt",
+  alternateName: "SKUHunt TikTok Shop Analytics",
   description:
-    "Professional analytics and profit tracking platform for TikTok Shop sellers. Monitor sales, calculate profits, and optimize your business performance.",
+    "Professional TikTok Shop analytics platform for sellers. Track profits, monitor sales, calculate fees, and optimize your business performance with real-time insights and detailed reporting.",
   applicationCategory: "BusinessApplication",
-  operatingSystem: "Any",
+  operatingSystem: "Web-based",
   offers: {
     "@type": "Offer",
     price: "0",
     priceCurrency: "USD",
+    priceValidUntil: "2024-12-31",
+    availability: "https://schema.org/OnlineOnly",
   },
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: "4.8",
     reviewCount: "1200",
+    bestRating: "5",
+    worstRating: "1",
   },
   features: [
-    "TikTok Shop Analytics",
-    "Profit Tracking",
-    "Sales Monitoring",
-    "Fee Calculator",
-    "Performance Metrics",
+    "Real-time TikTok Shop Analytics",
+    "Automated Profit Tracking",
+    "Sales Performance Monitoring",
+    "TikTok Shop Fee Calculator",
+    "Expense Tracking",
+    "Business Performance Metrics",
+    "Detailed Reporting Dashboard",
   ],
   creator: {
     "@type": "Organization",
-    name: "SkuHunt",
+    name: "SKUHunt",
     url: "https://www.skuhunt.com",
+    sameAs: [
+      "https://www.instagram.com/skuhunt/",
+      "https://www.linkedin.com/company/skuhunt/",
+    ],
   },
+  screenshot: "https://www.skuhunt.com/dashboard-preview.jpg",
+  softwareVersion: "1.0",
 };
 
 export default function Home() {

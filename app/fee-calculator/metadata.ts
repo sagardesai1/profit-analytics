@@ -2,15 +2,15 @@ import { Metadata } from "next";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.skuhunt.com";
 
 export const metadata: Metadata = {
-  title: "TikTok Shop Fee Calculator | Free Profit & Fee Calculator",
+  title: "TikTok Shop Fee Calculator by SKUhunt | Free Profit Calculator",
   description:
-    "Free TikTok Shop fee calculator. Calculate your selling fees, profit margins, shipping costs, and more. Make informed decisions for your TikTok Shop business.",
+    "SKUhunt's free TikTok Shop fee calculator helps you calculate selling fees, profit margins, shipping costs, and more. Make informed decisions for your TikTok Shop business.",
   keywords:
-    "tiktok shop calculator, tiktok fees, tiktok profit calculator, tiktok shop profit margin, ecommerce calculator, selling fees calculator",
+    "skuhunt calculator, tiktok shop calculator, tiktok fees, tiktok profit calculator, tiktok shop profit margin, ecommerce calculator, selling fees calculator, skuhunt tools",
   openGraph: {
-    title: "TikTok Shop Fee Calculator | Free Profit & Fee Calculator",
+    title: "SKUhunt - TikTok Shop Fee Calculator | Free Profit Calculator",
     description:
-      "Calculate TikTok Shop fees, profit margins, and expenses instantly. Join thousands of sellers making informed decisions.",
+      "Use SKUhunt's free calculator to instantly calculate TikTok Shop fees, profit margins, and expenses. Join thousands of sellers making informed decisions.",
     type: "website",
     url: `${BASE_URL}/fee-calculator`,
     images: [
@@ -18,16 +18,18 @@ export const metadata: Metadata = {
         url: `${BASE_URL}/images/calculator-og.jpg`,
         width: 1200,
         height: 630,
-        alt: "TikTok Shop Fee Calculator",
+        alt: "SKUhunt TikTok Shop Fee Calculator",
       },
     ],
+    siteName: "SKUhunt",
   },
   twitter: {
     card: "summary_large_image",
-    title: "TikTok Shop Fee Calculator | Free Profit & Fee Calculator",
+    title: "SKUhunt - TikTok Shop Fee Calculator | Free Profit Calculator",
     description:
-      "Calculate TikTok Shop fees, profit margins, and expenses instantly. Join thousands of sellers making informed decisions.",
+      "Use SKUhunt's free calculator to instantly calculate TikTok Shop fees, profit margins, and expenses. Join thousands of sellers making informed decisions.",
     images: [`${BASE_URL}/images/calculator-og.jpg`],
+    site: "@skuhunt",
   },
   alternates: {
     canonical: `${BASE_URL}/fee-calculator`,
