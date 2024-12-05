@@ -51,8 +51,12 @@ const structuredData = {
     name: "SKUHunt",
     url: "https://www.skuhunt.com",
     sameAs: [
-      "https://www.instagram.com/skuhunt/",
+      "https://x.com/skuhunt_",
       "https://www.linkedin.com/company/skuhunt/",
+      "https://www.instagram.com/skuhunt/",
+      "https://www.threads.net/@skuhunt",
+      "https://www.facebook.com/skuhunt",
+      "https://www.youtube.com/@SKUhunt",
     ],
   },
   screenshot: "https://www.skuhunt.com/dashboard-preview.jpg",
