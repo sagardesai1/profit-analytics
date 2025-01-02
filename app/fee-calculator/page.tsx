@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Script from "next/script";
 import FeeCalculator from "./calculator";
 import { metadata as pageMetadata } from "./metadata";
+import Navbar from "@/components/landingpage/Navbar";
 
 // Structured data object
 const structuredData = {
@@ -55,6 +56,7 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+      <Navbar />
       <FeeCalculator />
     </>
   );

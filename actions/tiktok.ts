@@ -410,3 +410,46 @@ export async function getProductDetails(productId: string) {
   const testProductId = "1730249046581023489"; // Replace with a valid product ID
   await getProductDetails(testProductId);
 })();
+
+// Get showcase products for affiliate creators
+export async function getShowcaseProducts(pageToken?: string) {
+  try {
+    const config: TikTokConfig = {
+      appKey: process.env.TIKTOK_APP_KEY || "",
+      appSecret: process.env.TIKTOK_APP_SECRET || "",
+      accessToken: process.env.TIKTOK_ACCESS_TOKEN,
+    };
+
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const path = "/affiliate_creator/202405/showcases/products";
+
+    const params = {
+      app_key: config.appKey,
+      timestamp,
+      page_size: "10",
+      origin: "LIVE",
+      ...(pageToken && { page_token: pageToken }),
+    };
+
+    const signature = generateSignature(config.appSecret, path, params);
+
+    const url = new URL("https://open-api.tiktokglobalshop.com" + path);
+    Object.entries({ ...params, sign: signature }).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "x-tts-access-token": config.accessToken || "",
+      },
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching showcase products:", error);
+    throw error;
+  }
+}

@@ -12,31 +12,31 @@ const Navbar: React.FC = () => {
       <div className="flex justify-between items-center">
         {/* Logo Section */}
         <div className="flex items-center">
-          <img src="/landingpage/logo.svg" alt="Logo" className="h-8" />
+          <Link href="/">
+            <img src="/landingpage/logo.svg" alt="Logo" className="h-8" />
+          </Link>
         </div>
 
         {/* Links Section (Desktop) */}
         <ul className="hidden md:flex space-x-10 text-gray-950 font-normal text-sm lg:text-base">
           <li>
-            <a href="https://getwaitlist.com/waitlist/17274" target="_blank">
-              <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
+            <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
+              <a href="https://getwaitlist.com/waitlist/17274" target="_blank">
                 Home
-              </span>
-            </a>
+              </a>
+            </span>
           </li>
           <li>
-            <a href="https://getwaitlist.com/waitlist/17274" target="_blank">
-              <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
+            <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
+              <a href="https://getwaitlist.com/waitlist/17274" target="_blank">
                 Demo
-              </span>
-            </a>
+              </a>
+            </span>
           </li>
           <li>
-            <Link href="/fee-calculator">
-              <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
-                Tools
-              </span>
-            </Link>
+            <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
+              <Link href="/fee-calculator">Tools</Link>
+            </span>
           </li>
           <li>
             <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
@@ -44,11 +44,9 @@ const Navbar: React.FC = () => {
             </span>
           </li>
           <li>
-            <Link href="/blog">
-              <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
-                Blog
-              </span>
-            </Link>
+            <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
+              <Link href="/blog">Blog</Link>
+            </span>
           </li>
         </ul>
 
@@ -114,23 +112,31 @@ const Navbar: React.FC = () => {
           </svg>
         </button>
         {/*for mobile devices */}
+
         <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
-          Home
+          <a href="https://getwaitlist.com/waitlist/17274" target="_blank">
+            Home
+          </a>
         </span>
+
         <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
-          Demo
+          <a href="https://getwaitlist.com/waitlist/17274" target="_blank">
+            Demo
+          </a>
         </span>
+
         <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
-          Tools
+          <Link href="/fee-calculator">Tools</Link>
         </span>
+
         <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
           Pricing
         </span>
-        <Link href="/blog">
-          <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
-            Blog
-          </span>
-        </Link>
+
+        <span className="hover:text-indigo-600 transition duration-200 cursor-pointer">
+          <Link href="/blog">Blog</Link>
+        </span>
+
         <a
           href="https://getwaitlist.com/waitlist/17274"
           target="_blank"

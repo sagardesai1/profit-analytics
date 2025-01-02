@@ -1,3 +1,5 @@
+import Navbar from "@/components/landingpage/Navbar";
+
 export default function PolicyLayout({
   children,
 }: {
@@ -5,6 +7,7 @@ export default function PolicyLayout({
 }) {
   return (
     <div className="min-h-screen bg-white">
+      <Navbar />
       <main className="container mx-auto">{children}</main>
     </div>
   );
